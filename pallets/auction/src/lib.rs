@@ -39,6 +39,7 @@ pub struct AuctionLogicHandler;
 #[derive(Encode, Decode, Clone, RuntimeDebug)]
 pub struct AuctionItem<AccountId, BlockNumber, Balance> {
     item_id: ItemId,
+    //creator: AccountId,
     recipient: AccountId,
     initial_amount: Balance,
     /// Current amount for sale
@@ -196,6 +197,7 @@ decl_module! {
 
                     let new_auction_item = AuctionItem {
                         item_id,
+                       // creator: from.clone(),
                         recipient : from.clone(),
                         initial_amount : value,
                         amount : value,
@@ -237,6 +239,7 @@ decl_module! {
 
                                     match auction_item.item_id {
                                             ItemId::NFT(asset_id) => {
+                                                
                                                 let asset_transfer = NFTModule::<T>::do_transfer(&auction_item.recipient, &high_bidder, asset_id);
                                                    match asset_transfer {
                                                         Err(_) => continue,
@@ -244,6 +247,7 @@ decl_module! {
                                                             Self::deposit_event(RawEvent::AuctionFinalized(auction_id, high_bidder ,high_bid_price));
                                                         },
                                                     }
+                                                
                                             }
                                             _ => {} //Future implementation for Spot, Country
                                         }
@@ -288,6 +292,7 @@ impl<T: Config> Module<T> {
     }
 
     fn new_auction(
+       // _creator: T::AccountId,
         _recipient: T::AccountId,
         _initial_amount: T::Balance,
         start: T::BlockNumber,
@@ -364,7 +369,7 @@ impl<T: Config> Module<T> {
             //Lock fund of new bidder
             //Reserve balance
             <pallet_balances::Module<T>>::reserve(&new_bidder, new_bid_price)?;
-            auction_item.recipient = new_bidder.clone();
+           //auction_item.recipient = new_bidder.clone();
             auction_item.amount = new_bid_price.clone();
 
             Ok(())

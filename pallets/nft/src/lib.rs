@@ -427,9 +427,10 @@ impl<T: Config> Module<T> {
         //Remove asset from sender
         AssetsByOwner::<T>::try_mutate(&sender, |asset_ids| -> DispatchResult {
             // Check if the asset_id already in the owner
-            let asset_index = asset_ids.iter().position(|x| *x == asset_id).unwrap();
+            let asset_index = asset_ids.iter().position(|x| asset_id == *x ).ok_or(Error::<T>::AssetIdNotFound)?;
+         
             asset_ids.remove(asset_index);
-
+            
             Ok(())
         })?;
 

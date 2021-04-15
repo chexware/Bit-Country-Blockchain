@@ -99,6 +99,7 @@ fn bidding_should_work() {
         })); 
         assert_eq!(NftAuctionModule::get_auction_item(0),Some(AuctionItem {
             item_id: ItemId::NFT(0),
+           // creator: BOB,
             recipient: BOB,
             initial_amount: 100,
             amount:100,
@@ -109,7 +110,8 @@ fn bidding_should_work() {
         assert_eq!(last_event(), Event::auction(RawEvent::Bid(0, ALICE, 101)));
         assert_eq!(NftAuctionModule::get_auction_item(0),Some(AuctionItem {
             item_id: ItemId::NFT(0),
-            recipient: ALICE,
+           // creator: BOB,
+            recipient: BOB,
             initial_amount: 100,
             amount:101,
             start_time: 1,
