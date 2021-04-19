@@ -1,0 +1,23 @@
+[package]
+authors = ['Aleksandar Brayanov <https://github.com/chexware>']
+description = 'Staking pallet  logic for Bit Country'
+edition = '2021'
+homepage = 'https://substrate.dev'
+license = 'Unlicensed'
+name = 'pallet-staking'
+repository = 'https://github.com/chexware/Bit-Country-Blockchain'
+version = '3.0.0'
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'frame-support/std',
+    'frame-system/std',
+]
+
+[dependencies]
+frame-support = { default-features = false, version = '3.0.0' }
+
+[dev-dependencies]
+sp-core = { default-features = false, version = '3.0.0' }
