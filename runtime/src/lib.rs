@@ -535,6 +535,18 @@ impl tokenization::Config for Runtime {
     type CountryCurrency = Currencies;
 }
 
+parameter_types! {
+    pub const EraTimeToFinish: u32 = 100800; //Default 100800 Blocks
+   
+}
+impl staking::Config for Runtime {
+    type Event = Event;
+    type EraTimeToFinish = EraTimeToFinish;
+    type EraId = u32;
+    type RewardMultiplier = u32;
+    type Currency = Balances;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -566,6 +578,7 @@ construct_runtime!(
         OrmlNFT: orml_nft::{Module ,Storage},
         NftModule: nft::{Module, Call ,Storage, Event<T>},
         Auction: auction::{Module, Call ,Storage, Event<T>},
+        StakingModule: staking::{Module, Call, Storage, Event<T>},
         Currencies: orml_currencies::{ Module, Storage, Call, Event<T>},
         Tokens: orml_tokens::{ Module, Storage, Call, Event<T>},
         TokenizationModule: tokenization:: {Module, Call, Storage, Event<T>},

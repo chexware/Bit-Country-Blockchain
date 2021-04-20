@@ -2,6 +2,7 @@
 * Calls
   - stake
    - origin: AccountId
+   - rewards_destination: RewardsDestination
    - stake_balance: Balance
   - unstake
     - origin: AccountId
@@ -11,10 +12,10 @@
   - claim_rewards 
     - origin: AccountId
 * Storages
-  - Payee: map: AccountId => Option(AccountId)
+  - PayoutAccounts: map: AccountId => Option(AccountId)
   - Rewards: AccountId => Option(Balance)
-  - StakedBalance: map: AccountId => Option(Balance)
-  - LockedBalance: map: AccountId => Option(Balance)
+  - StakedBalances: map: AccountId => Option(Balance)
+  - LockedBalances: map: AccountId => Option(Balance)
   - EraIndex: u32 
   - EraRewardMultiplier: f64 - number between 0 and 1 - could be updated via  governance
   - UnstakeLockPeriod: u32 - could be updated via governance
@@ -23,7 +24,7 @@
     - Inflationary
     - Deflationary
   - enum  RewardDestination
-  	- Staked,
+  	- Staker,
   	- Account(AccountId),
   	- None
 * Events
@@ -34,6 +35,7 @@
     - reward_balance: Balance
   - Stake
     - origin: AccountId
+    - reward_destination: AccountId
     - staked_balance: Balance
   - Unstake
     - origin: AccountId
@@ -41,11 +43,12 @@
   - Reinvest
     - origin: AccountId
     - reinvested_balance: Balance
-
 * Other functions
   - unlock_funds 
     - unlocks unstaked funds when  the last block of the lock period is finalised.
   - distribute_rewards
+    - 
     - triggered via offchain worker
     - updates account rewards based on the account staked balance and the current reward multiplier
+  
   
