@@ -536,12 +536,13 @@ impl tokenization::Config for Runtime {
 }
 
 parameter_types! {
-    pub const EraTimeToFinish: u32 = 100800; //Default 100800 Blocks
-   
+    pub const BalanceLockPeriod: u32 = 200800; //Default 100800 Blocks
+    pub const EraLength: u32 = 100800; //Default 100800 Blocks
 }
 impl staking::Config for Runtime {
     type Event = Event;
-    type EraTimeToFinish = EraTimeToFinish;
+    type BalanceLockPeriod = BalanceLockPeriod; 
+    type EraLength = EraLength;
     type EraId = u32;
     type RewardMultiplier = u32;
     type Currency = Balances;

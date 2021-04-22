@@ -27,6 +27,9 @@
   	- Staker,
   	- Account(AccountId),
   	- None
+	- ActiveEraInfo
+  	- EraId: EraId
+  	- Start: u32
 * Events
   - EraPayout
     - current_era: EraIndex

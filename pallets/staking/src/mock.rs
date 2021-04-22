@@ -47,12 +47,14 @@ impl system::Config for Runtime {
 }
 
 parameter_types! {
-    pub const EraTimeToFinish: u32 = 100; //Test auction end within 100 blocks
+    pub const BalanceLockPeriod: u32 = 100; //Test lock period is 100 blocks
+	pub const EraLength: u32 = 200; //Test era length is 200 blocks
 }
 
 impl Config for Runtime {
     type Event = Event;
-	type EraTimeToFinish = EraTimeToFinish;
+	type BalanceLockPeriod = BalanceLockPeriod;
+	type EraLength: = EraLength;
 	type EraId = u32;
 	type RewardMultiplier = u32;
     type Currency = Balances;

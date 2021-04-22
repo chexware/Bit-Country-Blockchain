@@ -39,15 +39,30 @@ pub enum RewardsDestination {
   	None
 }
 
+/// Information regarding the active era (era in used in session).
+#[derive(Encode, Decode, RuntimeDebug)]
+pub struct ActiveEraInfo {
+	/// Index of era.
+	pub index: u64,
+	/// Moment of start expressed as millisecond from `$UNIX_EPOCH`.
+	///
+	/// Start can be none if start hasn't been set for the era yet,
+	/// Start is set on the first on_finalize of the era to guarantee usage of `Time`.
+	start: Option<u64>,
+}
+
 type BalanceOf<T> =
 <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 pub trait Config: 
 frame_system::Config
 + pallet_balances::Config {
-	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
+	type Event: From<Event<Self>> 
+	+ Into<<Self as frame_system::Config>::Event>;
 	
-	type EraTimeToFinish: Get<Self::BlockNumber>;
+	type BalanceLockPeriod: Get<Self::BlockNumber>;
+
+	type EraLength: Get<Self::BlockNumber>;
 
     /// Type for EraId 
 	type EraId: Parameter
@@ -92,9 +107,10 @@ decl_storage! {
 decl_event!(
 	pub enum Event<T> where 
 	<T as frame_system::Config>::AccountId,
-	<T as pallet_balances::Config>::Balance, {
+	<T as pallet_balances::Config>::Balance,
+	<T as Config>::EraId {
 		EraPayout(EraId),
-		Reward(AccountId,Balance),
+		StakingRewardClaimed(AccountId,Balance),
 		/// User stakes funds [staking_account_id, rewards_account_id, staked_balance]
 		BalanceStaked(AccountId, AccountId,Balance),
 		BalanceUnstaked(AccountId,Balance),
@@ -104,7 +120,7 @@ decl_event!(
 
 decl_error! {
 	pub enum Error for Module<T: Config> {
-		InsufficentFreeBalance,
+		InsufficientFreeBalance,
 		InsufficientStakedBalance,
 		NoRewardsAvailable,
 	}
