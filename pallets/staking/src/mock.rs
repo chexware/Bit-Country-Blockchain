@@ -9,7 +9,7 @@ use frame_support::{
 };
 use sp_core::H256;
 use sp_runtime::{testing::Header, traits::IdentityLookup, ModuleId};
-use primitives::{CurrencyId, Amount, BlockNumber};
+use primitives::{CurrencyId, Amount, BlockNumber,CountryId};
 
 parameter_types! {
 	pub const BlockHashCount: u32 = 256;
@@ -20,6 +20,7 @@ pub type Balance = u64;
 
 pub const ALICE: AccountId = 1;
 pub const BOB: AccountId = 2;
+pub const COUNTRY: CountryId = 3;
 
 impl system::Config for Runtime {
 	type Origin = Origin;

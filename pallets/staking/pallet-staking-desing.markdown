@@ -2,56 +2,48 @@
 * Calls
   - stake
    - origin: AccountId
+   - country: CountryId
    - rewards_destination: RewardsDestination
    - stake_balance: Balance
   - unstake
     - origin: AccountId
+    - country: CountryId
     - unstake_balance: Balance
-  - reinvest_rewards - re-stake available rewards
+  - reinvest_rewards - claim re-stake available rewards
     - origin: AccountId
   - claim_rewards 
     - origin: AccountId
 * Storages
-  - PayoutAccounts: map: AccountId => Option(AccountId)
-  - Rewards: AccountId => Option(Balance)
-  - StakedBalances: map: AccountId => Option(Balance)
-  - LockedBalances: map: AccountId => Option(Balance)
-  - EraIndex: u32 
-  - EraRewardMultiplier: f64 - number between 0 and 1 - could be updated via  governance
-  - UnstakeLockPeriod: u32 - could be updated via governance
+  - Rewards: AccountId => Balance
+  - StakedBalances: double_map: (AccountId,CountryId) => Balance
+  - UnstakeRequests: double_map: (BlockNumber,AccountId)  => Balance
+  - EraEndTime: map: BlocknNumber, EraId => ()
+  - EraIndex: EraId
 * Types
-  - enum RewardType
-    - Inflationary
-    - Deflationary
-  - enum  RewardDestination
-  	- Staker,
-  	- Account(AccountId),
-  	- None
-	- ActiveEraInfo
-  	- EraId: EraId
-  	- Start: u32
 * Events
   - EraPayout
     - current_era: EraIndex
-  - Reward
+  - StakingRewardClaimed
     - origin: AccountId
     - reward_balance: Balance
-  - Stake
+  - BalanceStaked
     - origin: AccountId
-    - reward_destination: AccountId
+    - country: CountryId
     - staked_balance: Balance
-  - Unstake
+  - BalanceUnstaked
+    - origin: AccountId
+    - country: CountryId
+    - unstaked_balance: Balance
+  - UnstakeRequestCompleted
     - origin: AccountId
     - unstaked_balance: Balance
-  - Reinvest
+  - BalanceReinvested
     - origin: AccountId
     - reinvested_balance: Balance
 * Other functions
-  - unlock_funds 
-    - unlocks unstaked funds when  the last block of the lock period is finalised.
-  - distribute_rewards
-    - 
-    - triggered via offchain worker
+  - on_finalize
+    - unreserve funds when unstake period finishes.
+  - offchain worker
     - updates account rewards based on the account staked balance and the current reward multiplier
   
   
