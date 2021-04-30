@@ -4,11 +4,11 @@ use super::*;
 
 use crate as staking_module;
 use frame_support::{
-    construct_runtime, impl_outer_event, impl_outer_origin, impl_outer_dispatch, parameter_types
-    , traits::{OnInitialize, OnFinalize, EnsureOrigin}, 
+    construct_runtime, impl_outer_event, impl_outer_origin, impl_outer_dispatch, parameter_types,
+    traits::{OnInitialize, OnFinalize, EnsureOrigin}, unsigned::ValidateUnsigned,
 };
 use sp_core::H256;
-use sp_runtime::{testing::Header, traits::IdentityLookup, ModuleId};
+use sp_runtime::{testing::{Header,TestXt}, traits::IdentityLookup, ModuleId};
 use primitives::{CurrencyId, Amount, BlockNumber,CountryId};
 
 parameter_types! {
@@ -21,6 +21,7 @@ pub type Balance = u64;
 pub const ALICE: AccountId = 1;
 pub const BOB: AccountId = 2;
 pub const COUNTRY: CountryId = 3;
+pub const COUNTRY_ID_NOT_EXIST: CountryId = 4;
 
 impl system::Config for Runtime {
 	type Origin = Origin;
@@ -47,17 +48,30 @@ impl system::Config for Runtime {
     type SS58Prefix = ();
 }
 
+
+pub type Extrinsic = TestXt<Call, ()>;
+
+impl<LocalCall> SendTransactionTypes<LocalCall> for Runtime
+where
+	Call: From<LocalCall>,
+{
+	type OverarchingCall = Call;
+	type Extrinsic = Extrinsic;
+}
+
+
 parameter_types! {
     pub const BalanceLockPeriod: u32 = 100; //Test lock period is 100 blocks
 	pub const EraLength: u32 = 200; //Test era length is 200 blocks
+    pub const DefaultRewardMultiplier: u32 = 10;
 }
 
 impl Config for Runtime {
     type Event = Event;
 	type BalanceLockPeriod = BalanceLockPeriod;
+    type DefaultRewardMultiplier = DefaultRewardMultiplier;
 	type EraLength: = EraLength;
 	type EraId = u32;
-	type RewardMultiplier = u32;
     type Currency = Balances;
 }
 
@@ -74,6 +88,15 @@ impl pallet_balances::Config for Runtime {
     type MaxLocks = ();
     type WeightInfo = ();
 }
+/*
+parameter_types! {
+	pub const CountryFundModuleId: ModuleId = ModuleId(*b"bit/fund");
+}
+impl country::Config for Runtime {
+    type Event = Event;
+    type ModuleId = CountryFundModuleId;
+}
+*/
 
 use frame_system::Call as SystemCall;
 
@@ -89,6 +112,7 @@ construct_runtime!(
 	{
 		System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+        //Country: country::{Module, Call, Storage, Config<T>, Event<T>},
         StakingModule: staking_module::{Module, Call, Storage, Event<T>},
 	}
 );

@@ -10,7 +10,10 @@ fn staking_should_work() {
     ExtBuilder::default().build().execute_with(|| {
         let origin = Origin::signed(ALICE);
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceStaked(ALICE,COUNTRY, 100)));
+        assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),200);
         assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceStaked(ALICE,COUNTRY, 100)));
     });
 }
@@ -31,9 +34,9 @@ fn unstaking_should_work() {
         let origin = Origin::signed(ALICE);
         assert_ok!(StakingModule::stake(origin.clone(), COUNTRY, 100));
         assert_ok!(StakingModule::unstake(origin.clone(), COUNTRY, 50));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),50);
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),50);
         assert_eq!(Balances::reserved_balance(&ALICE),100);
-        assert_eq!(StakingModule::get_unstake_request(101,&ALICE),50);
+        assert_eq!(StakingModule::unstake_request(101,&ALICE),50);
         assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceUnstaked(ALICE, COUNTRY, 50)));
         run_to_block(102);
         assert_eq!(Balances::reserved_balance(&ALICE),50);
@@ -52,56 +55,60 @@ fn unstaking_insuficient_balance_should_not_work() {
     });
 }
 #[test]
-#[ignore = "not yet completed"]
 // Reinvest rewards should work
 fn reinvest_rewards_should_work() {
     ExtBuilder::default().build().execute_with(|| {
         let origin = Origin::signed(ALICE);
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),100);
-        run_to_block(202); //end of staking era
-        assert_ok!(StakingModule::reinvest(origin.clone()));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),110);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceReinvested(ALICE,10)));
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
+        Rewards::<Runtime>::insert(&ALICE,COUNTRY,10);
+        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),10);
+        assert_ok!(StakingModule::reinvest(origin.clone(),COUNTRY));
+        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
+        assert_eq!(Balances::free_balance(&ALICE), 99900);
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),110);
+        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceReinvested(ALICE,COUNTRY,10)));
     });
 }
 #[test]
-#[ignore = "not yet completed"]
 // Reinvesting no rewards shouldn't work
 fn reinvesting_no_rewards_should_not_work() {
     ExtBuilder::default().build().execute_with(|| {
         let origin = Origin::signed(ALICE);
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
         run_to_block(121); // less than end of staking era
-        assert_noop!(StakingModule::reinvest(origin.clone()),Error::<Runtime>::NoRewardsAvailable);
+        assert_noop!(StakingModule::reinvest(origin.clone(),COUNTRY),Error::<Runtime>::NoRewardsAvailable);
     });
 }
 
 #[test]
-#[ignore = "not yet completed"]
 // Claiming rewards should work
 fn claim_rewards_should_work() {
     ExtBuilder::default().build().execute_with(|| {
         let origin = Origin::signed(ALICE);
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY,100));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),100);
-        run_to_block(202); // end of staking era
-        assert_ok!(StakingModule::claim(origin.clone()));
-        assert_eq!(Balances::free_balance(&ALICE), 99910);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::StakingRewardClaimed(ALICE,10)));
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
+        Rewards::<Runtime>::insert(&ALICE,COUNTRY,20);
+        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),20);
+        assert_ok!(StakingModule::claim(origin.clone(),COUNTRY));
+        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
+        assert_eq!(Balances::free_balance(&ALICE), 99920);
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(last_event(), Event::staking_module(RawEvent::StakingRewardClaimed(ALICE,COUNTRY,20)));
     });
 }
 
 #[test]
-#[ignore = "not yet completed"]
 // Claiming no rewards shouldn't work
 fn claiming_no_rewards_should_not_work() {
     ExtBuilder::default().build().execute_with(|| {
         let origin = Origin::signed(ALICE);
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
-        assert_eq!(StakingModule::get_staked_balance(&ALICE,COUNTRY),100);
+        assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
         run_to_block(121); // less than end of staking era
-        assert_noop!(StakingModule::claim(origin.clone()),Error::<Runtime>::NoRewardsAvailable);
+        assert_noop!(StakingModule::claim(origin.clone(),COUNTRY),Error::<Runtime>::NoRewardsAvailable);
     });
 }
