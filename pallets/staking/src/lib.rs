@@ -20,7 +20,7 @@ use frame_system::{
 	 	offchain::{SendTransactionTypes, SubmitTransaction}
 	};
 use primitives::CountryId;
-//use pallet_country::Module as Country;
+use pallet_country::Module as Country;
 
 #[cfg(test)]
 mod mock;
@@ -28,13 +28,13 @@ mod mock;
 #[cfg(test)]
 mod tests;
 
-type BalanceOf<T> =
-<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+pub type EraIndex = u32;
+type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 pub trait Config: 
 frame_system::Config
 + pallet_balances::Config
-//+ pallet_country::Config {
++ pallet_country::Config 
 + SendTransactionTypes<Call<Self>> {
 	type Event: From<Event<Self>> 
 	+ Into<<Self as frame_system::Config>::Event>;
@@ -43,15 +43,6 @@ frame_system::Config
 	type BalanceLockPeriod: Get<Self::BlockNumber>;
 	type EraLength: Get<Self::BlockNumber>;
 	type DefaultRewardMultiplier: Get<u32>;
-
-    /// Type for EraId 
-	type EraId: Parameter
-    + Member
-    + AtLeast32BitUnsigned
-    + Default
-    + Copy
-    + MaybeSerializeDeserialize
-    + Bounded;
 
 	type Currency: Currency<Self::AccountId> + ReservableCurrency<Self::AccountId>;
 }
@@ -66,9 +57,9 @@ decl_storage! {
 		// Store all locked balances
 		pub UnstakeRequests get(fn unstake_request): double_map hasher(twox_64_concat) T::BlockNumber, hasher(twox_64_concat) T::AccountId => BalanceOf<T>;
 		// Store era end , index, and reward multiplier
-		pub EraInformation get(fn era_info): double_map hasher(twox_64_concat) T::BlockNumber, hasher(twox_64_concat) u32 => u32;
+		pub EraInformation get(fn era_info): double_map hasher(twox_64_concat) T::BlockNumber, hasher(twox_64_concat) EraIndex => ();
 		// Track era 
-		pub EraIndex get(fn current_era_index): u32;
+		pub CurrentEra get(fn current_era): EraIndex;
 
 	}
 }
@@ -78,7 +69,7 @@ decl_event!(
 	<T as frame_system::Config>::AccountId,
 	Balance = BalanceOf<T>,
 	 {
-		EraPayout(u32),
+		EraPayout(EraIndex),
 		StakingRewardClaimed(AccountId, CountryId, Balance),
 		BalanceStaked(AccountId, CountryId, Balance),
 		BalanceUnstaked(AccountId, CountryId, Balance),
@@ -97,10 +88,9 @@ decl_module! {
 		pub fn stake(origin, country: CountryId, balance: BalanceOf<T>) {
 			let account = ensure_signed(origin)?;
 			//check if countryId is valid
-		//Country::<T>::get_country(country).ok_or(Error::<T>::CountryDoesNotExist)?;
+		    Country::<T>::get_country(country).ok_or(Error::<T>::CountryDoesNotExist)?;
 			ensure!(T::Currency::free_balance(&account) >= balance, Error::<T>::InsufficientFreeBalance);
-			T::Currency::reserve(&account, balance);
-			<StakedBalances<T>>::mutate(&account, country, |staked_balance| *staked_balance += balance);
+			Self::stake_funds(account.clone(),country,balance);
 			Self::deposit_event(RawEvent::BalanceStaked(account, country, balance));
 		}
 
@@ -108,12 +98,11 @@ decl_module! {
 		pub fn unstake(origin, country: CountryId, balance: BalanceOf<T>) {
 			let account = ensure_signed(origin)?;
 			//check if countryId is valid
-			//Country::<T>::get_country(country).ok_or(Error::<T>::CountryDoesNotExist)?;
 			let old_balance = Self::staked_balance(&account,country);
 			ensure!(balance <=  old_balance, Error::<T>::InsufficientStakedBalance);
 
 			let end_time: T::BlockNumber = <system::Module<T>>::block_number() + T::BalanceLockPeriod::get();
-			<UnstakeRequests<T>>::insert( end_time, &account, balance);
+			<UnstakeRequests<T>>::insert(end_time, &account, balance);
 	
 			<StakedBalances<T>>::remove(&account,country);
 			if old_balance != balance {
@@ -133,34 +122,37 @@ decl_module! {
 		pub fn reinvest(origin, country: CountryId) {
 			let account = ensure_signed(origin)?;
 			let claimed_reward: BalanceOf<T> = Self::claim_rewards(account.clone(),country)?;
-			T::Currency::reserve(&account, claimed_reward);
-			<StakedBalances<T>>::mutate(&account, country, |balance| *balance += claimed_reward);
+			Self::stake_funds(account.clone(),country,claimed_reward);
 			Self::deposit_event(RawEvent::BalanceReinvested(account.clone(), country, claimed_reward));
 		}
 
 		fn on_finalize(now: T::BlockNumber) {
+			// update era if 
+			if now.is_one()  {
+				Self::start_new_era();
+			}
+			if <EraInformation<T>>::contains_key(now, Self::current_era()) {
+				Self::calculate_era_rewards_onchain();
+				Self::start_new_era();
+			}
+			//unreserve unstaked funds after end of ther lock period 
 			for (account_id, unstaked_funds) in <UnstakeRequests<T>>::drain_prefix(&now) {
 				T::Currency::unreserve(&account_id, unstaked_funds);
 				Self::deposit_event(RawEvent::UnstakeRequestCompleted(account_id,  unstaked_funds));
 			}
 			
-			let current_era = Self::current_era_index();
-			if (current_era == 0 && now == T::EraLength::get()) || <EraInformation<T>>::contains_key(now, current_era) {
-				Self::start_new_era();
-				<EraInformation<T>>::remove(now, current_era); 	
-			}
+			
 		}
+		/*
 		#[weight = 10_000]
 		pub fn pay_era_rewards(origin, era_reward: BalanceOf<T>, account: T::AccountId, country: CountryId) {
 			ensure_none(origin)?;
-			//let old_reward_balance: T::Balance = Self::account_rewards(&account, country);
 			<Rewards<T>>::mutate(account, country, |reward| *reward +=  era_reward);
 		}
 		fn offchain_worker(_now: T::BlockNumber) {
-			let _ = Self::calculate_era_rewards();
-			Self::deposit_event(RawEvent::EraPayout(Self::current_era_index()));
+			let _ = Self::calculate_era_rewards_offchain(_now);
 		}
-		
+		*/
     }
 }
 decl_error! {
@@ -172,6 +164,11 @@ decl_error! {
 	}
 }
 impl<T: Config> Module<T>  {
+	fn stake_funds(account: T::AccountId, country: CountryId, balance: BalanceOf<T>)-> Result<BalanceOf<T>, DispatchError>{
+		T::Currency::reserve(&account, balance);
+		<StakedBalances<T>>::mutate(&account, country, |staked_balance| *staked_balance += balance);
+		Ok(balance)
+	}
 	fn claim_rewards(account: T::AccountId, country: CountryId) -> Result<BalanceOf<T>, DispatchError> {
 		let reward_balance: BalanceOf<T> =  Self::account_rewards(&account,country);
 		ensure!(!reward_balance.is_zero(), Error::<T>::NoRewardsAvailable);
@@ -180,22 +177,40 @@ impl<T: Config> Module<T>  {
 		<Rewards<T>>::remove(&account,country);
 		Ok(reward_balance)
 	}
-
-	fn calculate_era_rewards() -> Result<(), ()> {
-		let mut lock = StorageLock::<'_, BlockAndTime<frame_system::Module<T>>>::with_block_deadline(&b"staking/lock"[..], 1);
-		let _guard = lock.try_lock().map_err(|_| ())?;
-		for (account_id, country_id, balance) in <StakedBalances<T>>::iter() {
-			let mut reward: BalanceOf<T> = balance / T::DefaultRewardMultiplier::get().into();
-			let _ = SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(Call::<T>::pay_era_rewards(reward, account_id, country_id).into());
+	/*
+	fn calculate_era_rewards_offchain(now: T::BlockNumber) -> Result<(), ()> {
+		if <EraInformation<T>>::contains_key(now, Self::current_era()) {
+			Self::start_new_era();
+			//let mut lock = StorageLock::<'_, BlockAndTime<frame_system::Module<T>>>::with_block_deadline(&b"staking/lock"[..], 1);
+			//let _guard = lock.try_lock().map_err(|_| ())?;
+			for (account_id, country_id, balance) in <StakedBalances<T>>::iter() {
+				let mut reward: BalanceOf<T> = balance / T::DefaultRewardMultiplier::get().into();
+				let _ = SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(Call::<T>::pay_era_rewards(reward,account_id,country_id).into());
+			}
+			Self::deposit_event(RawEvent::EraPayout(Self::current_era()));
 		}
+		Ok(())
+	}
+	*/
+	fn calculate_era_rewards_onchain() -> Result<(), ()> {
+		for (account_id, country_id, balance) in <StakedBalances<T>>::iter() {
+			let mut era_reward: BalanceOf<T> = balance / T::DefaultRewardMultiplier::get().into();
+			<Rewards<T>>::mutate(account_id, country_id, |reward| *reward +=  era_reward);
+		}
+		Self::deposit_event(RawEvent::EraPayout(Self::current_era()));
 		Ok(())
 	}
 
 	fn start_new_era() -> Result<(), ()>{
-		let previous_era = Self::current_era_index();
-		EraIndex::put(previous_era + 1);
-		let new_era_end = <system::Module<T>>::block_number() + T::EraLength::get();
-		<EraInformation<T>>::insert(new_era_end, previous_era.saturating_add(1), T::DefaultRewardMultiplier::get());
+		let new_era_index: EraIndex = Self::current_era().saturating_add(1);
+		CurrentEra::put(new_era_index);
+		if new_era_index.is_one()  {
+			<EraInformation<T>>::insert(T::EraLength::get(), new_era_index, ());
+		}
+		else {
+			let new_era_end: T::BlockNumber = <system::Module<T>>::block_number() + T::EraLength::get();
+			<EraInformation<T>>::insert(new_era_end, new_era_index, ());
+		}
 		Ok(())
 	}
 	
@@ -205,14 +220,14 @@ impl<T: Config> frame_support::unsigned::ValidateUnsigned for Module<T> {
 	type Call = Call<T>;
 
 	fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-		match &*call {
-			Call::pay_era_rewards(era_reward, account,country) => {
+		match call {
+			/*Call::pay_era_rewards(era_reward, account,country) => { 
 				ValidTransaction::with_tag_prefix("era_payout")
 					.longevity(64_u64)
 					.propagate(true)
 					.build()
-				
-			},
+			
+			},*/	
 			_ => InvalidTransaction::Call.into(),
 		}
 	}

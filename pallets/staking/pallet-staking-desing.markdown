@@ -15,13 +15,14 @@
     - origin: AccountId
     - country: CountryId
 * Storages
-  - Rewards: (AccountId, ) => Balance
+  - Rewards: (AccountId, CountryId) => Balance
   - StakedBalances: double_map: (AccountId,CountryId) => Balance
   - TotalStakedBalances: map AccountId => Balance
   - UnstakeRequests: double_map: (BlockNumber,AccountId)  => Balance
-  - EraEndTime: double_map: (BlocknNumber, EraId) => RewardMultiplier
-  - EraIndex: EraId
+  - ErInformation: double_map: (BlocknNumber, EraIndex) => ()
+  - CurrentEra: EraIndex
 * Types
+  - EraIndex: u32
 * Events
   - EraPayout
     - current_era: EraIndex
@@ -47,7 +48,8 @@
 * Other functions
   - on_finalize
     - unreserve funds when unstake period finishes.
-  - offchain_worker
+    - updates staking era
     - updates account rewards balances based on the account staked balance and the current era reward multiplier
+   
   
   

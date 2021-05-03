@@ -127,7 +127,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     transaction_version: 1,
 };
 
-pub const MILLISECS_PER_BLOCK: u64 = 6000;
+pub const MILLISECS_PER_BLOCK: u64 = 6000; //6000
 
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 
@@ -536,8 +536,8 @@ impl tokenization::Config for Runtime {
 }
 
 parameter_types! {
-    pub const BalanceLockPeriod: u32 = 200800; //Default 100800 Blocks
-    pub const EraLength: u32 = 100800; //Default 100800 Blocks
+    pub const BalanceLockPeriod: u32 = 200800; //Default 200800 Blocks
+    pub const EraLength: u32 = 50; //Default 100800 Blocks
     pub const DefaultRewardMultiplier: u32 = 110; 
 }
 impl staking::Config for Runtime {
@@ -545,7 +545,6 @@ impl staking::Config for Runtime {
     type BalanceLockPeriod = BalanceLockPeriod; 
     type EraLength = EraLength;
     type DefaultRewardMultiplier = DefaultRewardMultiplier;
-    type EraId = u32;
     type Currency = Balances;
 }
 

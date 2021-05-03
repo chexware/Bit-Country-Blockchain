@@ -5,11 +5,15 @@ use super::*;
 use crate as staking_module;
 use frame_support::{
     construct_runtime, impl_outer_event, impl_outer_origin, impl_outer_dispatch, parameter_types,
-    traits::{OnInitialize, OnFinalize, EnsureOrigin}, unsigned::ValidateUnsigned,
+    traits::{OnInitialize, OnFinalize, EnsureOrigin}, error::BadOrigin, unsigned::ValidateUnsigned,
 };
 use sp_core::H256;
-use sp_runtime::{testing::{Header,TestXt}, traits::IdentityLookup, ModuleId};
+use sp_runtime::{
+    testing::{Header,TestXt}, traits::IdentityLookup, 
+    ModuleId, Perbill, 
+};
 use primitives::{CurrencyId, Amount, BlockNumber,CountryId};
+
 
 parameter_types! {
 	pub const BlockHashCount: u32 = 256;
@@ -18,10 +22,10 @@ parameter_types! {
 pub type AccountId = u128;
 pub type Balance = u64;
 
-pub const ALICE: AccountId = 1;
-pub const BOB: AccountId = 2;
-pub const COUNTRY: CountryId = 3;
-pub const COUNTRY_ID_NOT_EXIST: CountryId = 4;
+pub const ALICE: AccountId = 3;
+pub const BOB: AccountId = 9;
+pub const COUNTRY: CountryId = 0;
+pub const COUNTRY_ID_NOT_EXIST: CountryId = 2;
 
 impl system::Config for Runtime {
 	type Origin = Origin;
@@ -71,7 +75,6 @@ impl Config for Runtime {
 	type BalanceLockPeriod = BalanceLockPeriod;
     type DefaultRewardMultiplier = DefaultRewardMultiplier;
 	type EraLength: = EraLength;
-	type EraId = u32;
     type Currency = Balances;
 }
 
@@ -88,15 +91,16 @@ impl pallet_balances::Config for Runtime {
     type MaxLocks = ();
     type WeightInfo = ();
 }
-/*
+
 parameter_types! {
 	pub const CountryFundModuleId: ModuleId = ModuleId(*b"bit/fund");
 }
-impl country::Config for Runtime {
-    type Event = Event;
-    type ModuleId = CountryFundModuleId;
+
+impl pallet_country::Config for Runtime {
+	type Event = Event;
+	type ModuleId = CountryFundModuleId;
 }
-*/
+
 
 use frame_system::Call as SystemCall;
 
@@ -112,8 +116,8 @@ construct_runtime!(
 	{
 		System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-        //Country: country::{Module, Call, Storage, Config<T>, Event<T>},
-        StakingModule: staking_module::{Module, Call, Storage, Event<T>},
+        CountryModule: pallet_country::{Module, Call, Storage,Event<T>},
+        StakingModule: staking_module::{Module, Call, Storage, Event<T>, ValidateUnsigned},
 	}
 );
 pub struct ExtBuilder;
@@ -135,7 +139,7 @@ impl ExtBuilder {
         }
             .assimilate_storage(&mut t)
             .unwrap();
-
+        
         let mut ext = sp_io::TestExternalities::new(t);
         ext.execute_with(|| System::set_block_number(1));
         ext
@@ -161,3 +165,5 @@ pub fn run_to_block(n: u64) {
 		StakingModule::on_initialize(System::block_number());
 	}
 }
+
+

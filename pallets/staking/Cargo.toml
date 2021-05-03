@@ -20,9 +20,14 @@ frame-support = { default-features = false, version = '3.0.0' }
 frame-system = { version = "3.0.0", default-features = false }
 
 pallet-balances = { version = "3.0.0", default-features = false }
+pallet-transaction-payment = { version = "3.0.0", default-features = false }
+frame-executive = { version = "3.0.0", default-features = false }
+sp-api = { version = "3.0.0", default-features = false }
 sp-core = { default-features = false, version = '3.0.0' }
 sp-io = { version = "3.0.0", default-features = false }
-#pallet-country = {default-features = false, package = "pallet-country", path = "../country"  }
+sp-version = { version = "3.0.0", default-features = false }
+sp-offchain = { version = "3.0.0", default-features = false }
+
 
 
 # Used for the node's RPCs
@@ -30,7 +35,7 @@ frame-system-rpc-runtime-api = { version = "3.0.0", default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", default-features = false }
 primitives = { package = "bit-country-primitives", path = "../primitives", default-features = false }
 
-
+pallet-country = {default-features = false, package = "pallet-country", path = "../country"  }
 
 [features]
 default = ['std']
@@ -42,6 +47,7 @@ std = [
     'sp-runtime/std',
     'sp-core/std',
     'sp-io/std',
+    "sp-std/std",
     'pallet-balances/std',
- #    'pallet-country/std',
+    'pallet-country/std',
 ]
