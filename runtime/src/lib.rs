@@ -537,7 +537,7 @@ impl tokenization::Config for Runtime {
 
 parameter_types! {
     pub const BalanceLockPeriod: u32 = 200800; //Default 200800 Blocks
-    pub const EraLength: u32 = 50; //Default 100800 Blocks
+    pub const EraLength: u32 = 100800; //Default 100800 Blocks
     pub const DefaultRewardMultiplier: u32 = 110; 
 }
 impl staking::Config for Runtime {
@@ -587,7 +587,7 @@ construct_runtime!(
         OrmlNFT: orml_nft::{Module ,Storage},
         NftModule: nft::{Module, Call ,Storage, Event<T>},
         Auction: auction::{Module, Call ,Storage, Event<T>},
-        StakingModule: staking::{Module, Call, Storage, Event<T>}, //ValidateUnsigned}, 
+        StakingModule: staking::{Module, Call, Storage, Event<T>},
         Currencies: orml_currencies::{ Module, Storage, Call, Event<T>},
         Tokens: orml_tokens::{ Module, Storage, Call, Event<T>},
         TokenizationModule: tokenization:: {Module, Call, Storage, Event<T>},
