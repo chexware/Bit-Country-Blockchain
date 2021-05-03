@@ -11,13 +11,11 @@ use sp_runtime::{
 	transaction_validity::{
 		InvalidTransaction, TransactionSource, TransactionValidity, ValidTransaction,
 	},
-	offchain::storage_lock::{StorageLock, BlockAndTime},
 	traits::{AtLeast32BitUnsigned, Bounded, MaybeSerializeDeserialize, Member, One, Zero},
     DispatchError, DispatchResult, RuntimeDebug,
 };
 use frame_system::{
 		self as system, ensure_signed, ensure_none,
-	 	offchain::{SendTransactionTypes, SubmitTransaction}
 	};
 use primitives::CountryId;
 use pallet_country::Module as Country;
@@ -34,8 +32,7 @@ type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Con
 pub trait Config: 
 frame_system::Config
 + pallet_balances::Config
-+ pallet_country::Config 
-+ SendTransactionTypes<Call<Self>> {
++ pallet_country::Config {
 	type Event: From<Event<Self>> 
 	+ Into<<Self as frame_system::Config>::Event>;
 	
@@ -143,16 +140,6 @@ decl_module! {
 			
 			
 		}
-		/*
-		#[weight = 10_000]
-		pub fn pay_era_rewards(origin, era_reward: BalanceOf<T>, account: T::AccountId, country: CountryId) {
-			ensure_none(origin)?;
-			<Rewards<T>>::mutate(account, country, |reward| *reward +=  era_reward);
-		}
-		fn offchain_worker(_now: T::BlockNumber) {
-			let _ = Self::calculate_era_rewards_offchain(_now);
-		}
-		*/
     }
 }
 decl_error! {
@@ -177,21 +164,7 @@ impl<T: Config> Module<T>  {
 		<Rewards<T>>::remove(&account,country);
 		Ok(reward_balance)
 	}
-	/*
-	fn calculate_era_rewards_offchain(now: T::BlockNumber) -> Result<(), ()> {
-		if <EraInformation<T>>::contains_key(now, Self::current_era()) {
-			Self::start_new_era();
-			//let mut lock = StorageLock::<'_, BlockAndTime<frame_system::Module<T>>>::with_block_deadline(&b"staking/lock"[..], 1);
-			//let _guard = lock.try_lock().map_err(|_| ())?;
-			for (account_id, country_id, balance) in <StakedBalances<T>>::iter() {
-				let mut reward: BalanceOf<T> = balance / T::DefaultRewardMultiplier::get().into();
-				let _ = SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(Call::<T>::pay_era_rewards(reward,account_id,country_id).into());
-			}
-			Self::deposit_event(RawEvent::EraPayout(Self::current_era()));
-		}
-		Ok(())
-	}
-	*/
+
 	fn calculate_era_rewards_onchain() -> Result<(), ()> {
 		for (account_id, country_id, balance) in <StakedBalances<T>>::iter() {
 			let mut era_reward: BalanceOf<T> = balance / T::DefaultRewardMultiplier::get().into();
@@ -214,21 +187,4 @@ impl<T: Config> Module<T>  {
 		Ok(())
 	}
 	
-}
-
-impl<T: Config> frame_support::unsigned::ValidateUnsigned for Module<T> {
-	type Call = Call<T>;
-
-	fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-		match call {
-			/*Call::pay_era_rewards(era_reward, account,country) => { 
-				ValidTransaction::with_tag_prefix("era_payout")
-					.longevity(64_u64)
-					.propagate(true)
-					.build()
-			
-			},*/	
-			_ => InvalidTransaction::Call.into(),
-		}
-	}
 }

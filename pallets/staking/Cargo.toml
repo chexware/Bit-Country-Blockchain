@@ -26,9 +26,6 @@ sp-api = { version = "3.0.0", default-features = false }
 sp-core = { default-features = false, version = '3.0.0' }
 sp-io = { version = "3.0.0", default-features = false }
 sp-version = { version = "3.0.0", default-features = false }
-sp-offchain = { version = "3.0.0", default-features = false }
-
-
 
 # Used for the node's RPCs
 frame-system-rpc-runtime-api = { version = "3.0.0", default-features = false }

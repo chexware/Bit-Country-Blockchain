@@ -162,35 +162,3 @@ fn era_payout_should_work() {
         assert_eq!(last_event(), Event::staking_module(RawEvent::EraPayout(2)));
     });
 }
-/*
-#[test]
-fn pay_era_rewards_should_work() {
-    ExtBuilder::default().build().execute_with(|| {
-        assert_ok!(CountryModule::create_country(origin.clone(),vec![1]));
-        assert_ok!(StakingModule::pay_era_rewards(Origin::none(), 10, ALICE, COUNTRY));
-        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),10);
-        assert_ok!(StakingModule::pay_era_rewards(Origin::none(), 20, ALICE, COUNTRY));
-        assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),30);
-        
-    });
-}
-
-
-#[test]
-#[ignore = "not yet implemented"]
-fn validate_unsigned_should_work() {
-    ExtBuilder::default().build().execute_with(|| {
-        
-        assert_ok!(StakingModule::validate_unsigned(TransactionSource::InBlock, &crate::Call::pay_era_rewards(20, ALICE, COUNTRY)), TransactionValidity::Ok(ValidTransaction {
-            priority: 0,
-            requires: vec![],
-            provides: vec![],
-            longevity: 64,
-            propagate: true,
-        }));
-        
-        
-        
-    });
-}
-*/

@@ -5,7 +5,7 @@ use super::*;
 use crate as staking_module;
 use frame_support::{
     construct_runtime, impl_outer_event, impl_outer_origin, impl_outer_dispatch, parameter_types,
-    traits::{OnInitialize, OnFinalize, EnsureOrigin}, error::BadOrigin, unsigned::ValidateUnsigned,
+    traits::{OnInitialize, OnFinalize, EnsureOrigin},
 };
 use sp_core::H256;
 use sp_runtime::{
@@ -54,15 +54,6 @@ impl system::Config for Runtime {
 
 
 pub type Extrinsic = TestXt<Call, ()>;
-
-impl<LocalCall> SendTransactionTypes<LocalCall> for Runtime
-where
-	Call: From<LocalCall>,
-{
-	type OverarchingCall = Call;
-	type Extrinsic = Extrinsic;
-}
-
 
 parameter_types! {
     pub const BalanceLockPeriod: u32 = 100; //Test lock period is 100 blocks
@@ -117,7 +108,7 @@ construct_runtime!(
 		System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         CountryModule: pallet_country::{Module, Call, Storage,Event<T>},
-        StakingModule: staking_module::{Module, Call, Storage, Event<T>, ValidateUnsigned},
+        StakingModule: staking_module::{Module, Call, Storage, Event<T>},
 	}
 );
 pub struct ExtBuilder;

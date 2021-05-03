@@ -4212,7 +4212,6 @@ dependencies = [
  "sp-api",
  "sp-core",
  "sp-io",
- "sp-offchain",
  "sp-runtime",
  "sp-std",
  "sp-version",

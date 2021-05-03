@@ -587,7 +587,7 @@ construct_runtime!(
         OrmlNFT: orml_nft::{Module ,Storage},
         NftModule: nft::{Module, Call ,Storage, Event<T>},
         Auction: auction::{Module, Call ,Storage, Event<T>},
-        StakingModule: staking::{Module, Call, Storage, Event<T>, ValidateUnsigned}, 
+        StakingModule: staking::{Module, Call, Storage, Event<T>}, //ValidateUnsigned}, 
         Currencies: orml_currencies::{ Module, Storage, Call, Event<T>},
         Tokens: orml_tokens::{ Module, Storage, Call, Event<T>},
         TokenizationModule: tokenization:: {Module, Call, Storage, Event<T>},
