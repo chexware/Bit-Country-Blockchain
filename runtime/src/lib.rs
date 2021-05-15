@@ -127,7 +127,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     transaction_version: 1,
 };
 
-pub const MILLISECS_PER_BLOCK: u64 = 6000;
+pub const MILLISECS_PER_BLOCK: u64 = 6000; //6000
 
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 
@@ -535,6 +535,27 @@ impl tokenization::Config for Runtime {
     type CountryCurrency = Currencies;
 }
 
+parameter_types! {
+    pub const BalanceLockPeriod: u32 = 200800; //Default 200800 Blocks
+    pub const EraLength: u32 = 100800; //Default 100800 Blocks
+    pub const DefaultRewardMultiplier: u32 = 110; 
+}
+impl staking::Config for Runtime {
+    type Event = Event;
+    type BalanceLockPeriod = BalanceLockPeriod; 
+    type EraLength = EraLength;
+    type DefaultRewardMultiplier = DefaultRewardMultiplier;
+    type Currency = Balances;
+}
+
+impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
+where
+	Call: From<C>,
+{
+	type OverarchingCall = Call;
+	type Extrinsic = UncheckedExtrinsic;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -566,6 +587,7 @@ construct_runtime!(
         OrmlNFT: orml_nft::{Module ,Storage},
         NftModule: nft::{Module, Call ,Storage, Event<T>},
         Auction: auction::{Module, Call ,Storage, Event<T>},
+        StakingModule: staking::{Module, Call, Storage, Event<T>},
         Currencies: orml_currencies::{ Module, Storage, Call, Event<T>},
         Tokens: orml_tokens::{ Module, Storage, Call, Event<T>},
         TokenizationModule: tokenization:: {Module, Call, Storage, Event<T>},

@@ -539,6 +539,7 @@ dependencies = [
  "pallet-grandpa",
  "pallet-nft",
  "pallet-randomness-collective-flip",
+ "pallet-staking",
  "pallet-sudo",
  "pallet-timestamp",
  "pallet-tips",
@@ -4103,27 +4104,15 @@ dependencies = [
  "orml-currencies",
  "orml-tokens",
  "orml-traits",
- "pallet-aura",
- "pallet-balances",
- "pallet-grandpa",
  "pallet-nft",
- "pallet-randomness-collective-flip",
- "pallet-sudo",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "parity-scale-codec",
- "serde",
  "sp-api",
- "sp-block-builder",
- "sp-consensus-aura",
  "sp-core",
- "sp-inherents",
  "sp-io",
- "sp-offchain",
  "sp-runtime",
- "sp-session",
  "sp-std",
- "sp-transaction-pool",
  "sp-version",
 ]
 
@@ -4203,6 +4192,29 @@ dependencies = [
  "sp-staking",
  "sp-std",
  "sp-trie",
+]
+
+[[package]]
+name = "pallet-staking"
+version = "2.0.0-rc6"
+dependencies = [
+ "bit-country-primitives",
+ "frame-executive",
+ "frame-support",
+ "frame-system",
+ "frame-system-rpc-runtime-api",
+ "pallet-balances",
+ "pallet-country",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc-runtime-api",
+ "parity-scale-codec",
+ "serde",
+ "sp-api",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "sp-version",
 ]
 
 [[package]]

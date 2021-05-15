@@ -1,0 +1,50 @@
+[package]
+authors = ['Aleksandar Brayanov <https://github.com/chexware>']
+description = 'Staking pallet logic for Bit Country'
+edition = '2018'
+homepage = 'https://substrate.dev'
+license = 'Unlicensed'
+name = 'pallet-staking'
+repository = 'https://github.com/chexware/Bit-Country-Blockchain'
+version = '2.0.0-rc6'
+
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+[dependencies]
+serde = { version = "1.0.101", optional = true, features = ["derive"] }
+codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
+sp-std = { version = "3.0.0", default-features = false }
+sp-runtime = { version = "3.0.0", default-features = false }
+frame-support = { default-features = false, version = '3.0.0' }
+frame-system = { version = "3.0.0", default-features = false }
+
+pallet-balances = { version = "3.0.0", default-features = false }
+pallet-transaction-payment = { version = "3.0.0", default-features = false }
+frame-executive = { version = "3.0.0", default-features = false }
+sp-api = { version = "3.0.0", default-features = false }
+sp-core = { default-features = false, version = '3.0.0' }
+sp-io = { version = "3.0.0", default-features = false }
+sp-version = { version = "3.0.0", default-features = false }
+
+# Used for the node's RPCs
+frame-system-rpc-runtime-api = { version = "3.0.0", default-features = false }
+pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", default-features = false }
+primitives = { package = "bit-country-primitives", path = "../primitives", default-features = false }
+
+pallet-country = {default-features = false, package = "pallet-country", path = "../country"  }
+
+[features]
+default = ['std']
+std = [
+    'serde',
+    'codec/std',
+    'frame-support/std',
+    'frame-system/std',
+    'sp-runtime/std',
+    'sp-core/std',
+    'sp-io/std',
+    "sp-std/std",
+    'pallet-balances/std',
+    'pallet-country/std',
+]

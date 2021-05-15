@@ -108,7 +108,7 @@ decl_module! {
         fn deposit_event() = default;
 
         #[weight = 10_000]
-        fn create_country(origin, metadata: Vec<u8>) -> DispatchResult {
+        pub fn create_country(origin, metadata: Vec<u8>) -> DispatchResult {
 
             let owner = ensure_signed(origin)?;
 
