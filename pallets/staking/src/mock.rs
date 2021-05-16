@@ -121,20 +121,24 @@ impl Default for ExtBuilder {
 
 impl ExtBuilder {
     pub fn build(self) -> sp_io::TestExternalities {
-        let mut t = frame_system::GenesisConfig::default()
-            .build_storage::<Runtime>()
-            .unwrap();
-
-        pallet_balances::GenesisConfig::<Runtime> {
-            balances: vec![(ALICE, 100000),(BOB,2000)],
-        }
-            .assimilate_storage(&mut t)
-            .unwrap();
-        
-        let mut ext = sp_io::TestExternalities::new(t);
-        ext.execute_with(|| System::set_block_number(1));
-        ext
-    }
+        self.build_with_block_number(1)
+     }
+ 
+     pub fn build_with_block_number(self, block_number: u64) -> sp_io::TestExternalities {
+         let mut t = frame_system::GenesisConfig::default()
+             .build_storage::<Runtime>()
+             .unwrap();
+ 
+         pallet_balances::GenesisConfig::<Runtime> {
+             balances: vec![(ALICE, 100000), (BOB, 2000)],
+         }
+             .assimilate_storage(&mut t)
+             .unwrap();
+ 
+         let mut ext = sp_io::TestExternalities::new(t);
+         ext.execute_with(|| System::set_block_number(block_number));
+         ext
+     }
 }
 
 pub fn last_event() -> Event {

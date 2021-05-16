@@ -19,7 +19,7 @@
   - StakedBalances: double_map: (AccountId,CountryId) => Balance
   - TotalStakedBalances: map AccountId => Balance
   - UnstakeRequests: double_map: (BlockNumber,AccountId)  => Balance
-  - ErInformation: double_map: (BlocknNumber, EraIndex) => ()
+  - ErInformation: double_map: (BlockNumber, EraIndex) => ()
   - CurrentEra: EraIndex
 * Types
   - EraIndex: u32

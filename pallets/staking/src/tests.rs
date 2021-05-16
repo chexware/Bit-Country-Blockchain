@@ -12,10 +12,10 @@ fn staking_should_work() {
         assert_ok!(CountryModule::create_country(origin.clone(),vec![1]));
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
         assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceStaked(ALICE,COUNTRY, 100)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::BalanceStaked(ALICE,COUNTRY, 100)));
         assert_ok!(StakingModule::stake(origin.clone(),COUNTRY, 100));
         assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),200);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceStaked(ALICE,COUNTRY, 100)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::BalanceStaked(ALICE,COUNTRY, 100)));
     });
 }
 
@@ -50,10 +50,10 @@ fn unstaking_should_work() {
         assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),50);
         assert_eq!(Balances::reserved_balance(&ALICE),100);
         assert_eq!(StakingModule::unstake_request(101,&ALICE),50);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceUnstaked(ALICE, COUNTRY, 50)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::BalanceUnstaked(ALICE, COUNTRY, 50)));
         run_to_block(102);
         assert_eq!(Balances::reserved_balance(&ALICE),50);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::UnstakeRequestCompleted(ALICE, 50)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::UnstakeRequestCompleted(ALICE, 50)));
         
     });
 }
@@ -84,7 +84,7 @@ fn reinvest_rewards_should_work() {
         assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
         assert_eq!(Balances::free_balance(&ALICE), 99900);
         assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),110);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::BalanceReinvested(ALICE,COUNTRY,10)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::BalanceReinvested(ALICE,COUNTRY,10)));
     });
 }
 #[test]
@@ -115,7 +115,7 @@ fn claim_rewards_should_work() {
         assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
         assert_eq!(Balances::free_balance(&ALICE), 99920);
         assert_eq!(StakingModule::staked_balance(&ALICE,COUNTRY),100);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::StakingRewardClaimed(ALICE,COUNTRY,20)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::StakingRewardClaimed(ALICE,COUNTRY,20)));
     });
 }
 
@@ -156,9 +156,9 @@ fn era_payout_should_work() {
         assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),0);
         run_to_block(205); // end of era 1
         assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),10);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::EraPayout(1)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::EraPayout(1)));
         run_to_block(408); // end of era 2
         assert_eq!(StakingModule::account_rewards(&ALICE,COUNTRY),20);
-        assert_eq!(last_event(), Event::staking_module(RawEvent::EraPayout(2)));
+        assert_eq!(last_event(), Event::staking_module(crate::Event::EraPayout(2)));
     });
 }
