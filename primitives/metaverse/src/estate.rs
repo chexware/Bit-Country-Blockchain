@@ -25,6 +25,7 @@ pub trait Estate<AccountId> {
 	fn get_total_undeploy_land_units() -> u64;
 }
 
+
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Eq, PartialEq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
 pub struct EstateInfo {
@@ -44,4 +45,13 @@ pub enum OwnerId<AccountId, TokenId> {
 pub enum LandUnitStatus<AccountId> {
 	NonExisting,
 	Existing(AccountId),
+}
+
+#[derive(Eq, PartialEq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
+pub struct LandCoordinate {
+	/// X Coordinate
+	pub x: i32,
+	/// Y Coordinate
+	pub y: i32,
+	// Can add more dimensions in the future
 }
