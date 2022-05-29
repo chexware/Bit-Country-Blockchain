@@ -1,16 +1,13 @@
 #![cfg(test)]
-
+use crate as metaverse;
 use frame_support::traits::Nothing;
 use frame_support::{construct_runtime, ord_parameter_types, parameter_types, PalletId};
 use frame_system::EnsureSignedBy;
 use orml_traits::parameter_type_with_key;
-use sp_core::H256;
-use sp_runtime::{testing::Header, traits::IdentityLookup, Perbill};
-
 use primitives::staking::RoundInfo;
 use primitives::{Amount, ClassId, GroupCollectionId, TokenId};
-
-use crate as metaverse;
+use sp_core::H256;
+use sp_runtime::{testing::Header, traits::IdentityLookup, Perbill};
 
 use super::*;
 
@@ -117,14 +114,6 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 		Ok(false)
 	}
 
-	fn check_nft_ownership(who: &AccountId, nft: &(Self::ClassId, Self::TokenId)) -> Result<bool, DispatchError> {
-		let nft_value = *nft;
-		if *who == ALICE && nft_value.0 == ASSET_CLASS_ID && nft_value.1 == ASSET_TOKEN_ID {
-			return Ok(true);
-		}
-		Ok(false)
-	}
-
 	fn check_collection_and_class(
 		collection_id: GroupCollectionId,
 		class_id: Self::ClassId,
@@ -148,10 +137,18 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 		royalty_fee: Perbill,
 	) -> Result<ClassId, DispatchError> {
 		match *sender {
-			ALICE => Ok(1),
-			BOB => Ok(2),
+			ALICE => Ok(100),
+			BOB => Ok(3),
 			BENEFICIARY_ID => Ok(ASSET_CLASS_ID),
-			_ => Ok(100),
+			_ => {
+				if collection_id == 0 {
+					Ok(0)
+				} else if collection_id == 1 {
+					Ok(1)
+				} else {
+					Ok(2)
+				}
+			}
 		}
 	}
 
@@ -202,7 +199,7 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 		CLASS_FUND_ID
 	}
 
-	fn get_nft_detail(asset_id: (Self::ClassId, Self::TokenId)) -> Result<(NftClassData<Balance>), DispatchError> {
+	fn get_nft_detail(asset_id: (Self::ClassId, Self::TokenId)) -> Result<NftClassData<Balance>, DispatchError> {
 		let new_data = NftClassData {
 			deposit: 0,
 			attributes: test_attributes(1),
@@ -212,6 +209,14 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 			royalty_fee: Perbill::from_percent(0u32),
 		};
 		Ok(new_data)
+	}
+
+	fn set_lock_collection(class_id: Self::ClassId, is_locked: bool) -> sp_runtime::DispatchResult {
+		todo!()
+	}
+
+	fn set_lock_nft(token_id: (Self::ClassId, Self::TokenId), is_locked: bool) -> sp_runtime::DispatchResult {
+		todo!()
 	}
 }
 

@@ -32,6 +32,10 @@ pub const METAVERSE_ID_NOT_EXIST: MetaverseId = 1;
 pub const NUUM: CurrencyId = 0;
 pub const METAVERSE_FUND: FungibleTokenId = FungibleTokenId::FungibleToken(1);
 
+pub const ALICE_METAVERSE_ID: MetaverseId = 1;
+pub const BOB_METAVERSE_ID: MetaverseId = 2;
+pub const GENERAL_METAVERSE_FUND: AccountId = 102;
+
 ord_parameter_types! {
 	pub const One: AccountId = ALICE;
 }
@@ -116,6 +120,10 @@ pub type AdaptedBasicCurrency = currencies::BasicCurrencyAdapter<Runtime, Balanc
 pub struct MetaverseInfoSource {}
 
 impl MetaverseTrait<AccountId> for MetaverseInfoSource {
+	fn create_metaverse(who: &AccountId, metadata: MetaverseMetadata) -> MetaverseId {
+		1u64
+	}
+
 	fn check_ownership(who: &AccountId, metaverse_id: &MetaverseId) -> bool {
 		match *who {
 			ALICE => true,
@@ -135,12 +143,24 @@ impl MetaverseTrait<AccountId> for MetaverseInfoSource {
 		Ok(())
 	}
 
-	fn get_metaverse_land_class(metaverse_id: MetaverseId) -> ClassId {
-		15u32
+	fn get_metaverse_land_class(metaverse_id: MetaverseId) -> Result<ClassId, DispatchError> {
+		Ok(15u32)
 	}
 
-	fn get_metaverse_estate_class(metaverse_id: MetaverseId) -> ClassId {
-		16u32
+	fn get_metaverse_estate_class(metaverse_id: MetaverseId) -> Result<ClassId, DispatchError> {
+		Ok(16u32)
+	}
+
+	fn get_metaverse_marketplace_listing_fee(metaverse_id: MetaverseId) -> Result<Perbill, DispatchError> {
+		Ok(Perbill::from_percent(1u32))
+	}
+
+	fn get_metaverse_treasury(metaverse_id: MetaverseId) -> AccountId {
+		GENERAL_METAVERSE_FUND
+	}
+
+	fn get_network_treasury() -> AccountId {
+		GENERAL_METAVERSE_FUND
 	}
 }
 

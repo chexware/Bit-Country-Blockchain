@@ -1,6 +1,6 @@
-// This file is part of Bit.Country
+// This file is part of Metaverse.Network & Bit.Country
 
-// Copyright (C) 2020-2021 Bit.Country.
+// Copyright (C) 2020-2022 Metaverse.Network & Bit.Country .
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -83,7 +83,6 @@ fn test_attributes(x: u8) -> Attributes {
 }
 
 fn mint_NFT<T: Config>(caller: T::AccountId) {
-	//T::NFTHandler::mint_land_nft(caller.clone().into(), vec![1], test_attributes(1));
 	T::NFTHandler::create_token_class(
 		&caller.clone(),
 		vec![1],

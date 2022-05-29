@@ -1,6 +1,6 @@
-// This file is part of Bit.Country.
+// This file is part of Metaverse.Network & Bit.Country.
 
-// Copyright (C) 2020-2021 Bit.Country.
+// Copyright (C) 2020-2022 Metaverse.Network & Bit.Country .
 // SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -222,7 +222,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("pioneer-runtime"),
 	impl_name: create_runtime_str!("pioneer-runtime"),
 	authoring_version: 1,
-	spec_version: 7,
+	spec_version: 8,
 	impl_version: 0,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -740,6 +740,13 @@ parameter_types! {
 
 parameter_types! {
 	pub KsmPerSecond: (AssetId, u128) = (MultiLocation::parent().into(), ksm_per_second());
+	pub GenericNeerPerSecond: (AssetId, u128) = (
+		MultiLocation::new(
+			1,
+			X2(Parachain(ParachainInfo::parachain_id().into()), GeneralKey(FungibleTokenId::NativeToken(0).encode()))
+		).into(),
+		native_per_second()
+	);
 	pub NeerPerSecond: (AssetId, u128) = (
 		MultiLocation::new(
 			1,
@@ -747,10 +754,24 @@ parameter_types! {
 		).into(),
 		native_per_second()
 	);
-	pub NeerX1PerSecond: (AssetId, u128) = (
+	pub NeerX0PerSecond: (AssetId, u128) = (
 		MultiLocation::new(
 			0,
-			X1(GeneralKey(FungibleTokenId::NativeToken(0).encode())),
+			X1(GeneralKey(FungibleTokenId::NativeToken(0).encode()))
+		).into(),
+		native_per_second()
+	);
+	pub NeerX1PerSecond: (AssetId, u128) = (
+		MultiLocation::new(
+			1,
+			X2(Parachain(3096), GeneralKey(FungibleTokenId::NativeToken(0).encode())),
+		).into(),
+		native_per_second()
+	);
+	pub NeerX2PerSecond: (AssetId, u128) = (
+		MultiLocation::new(
+			1,
+			X2(Parachain(parachains::karura::ID), GeneralKey(FungibleTokenId::NativeToken(0).encode()))
 		).into(),
 		native_per_second()
 	);
@@ -807,7 +828,11 @@ impl TakeRevenue for ToTreasury {
 /// the xcm executor won't know how to charge fees for a transfer of said token.
 pub type Trader = (
 	FixedRateOfFungible<KsmPerSecond, ToTreasury>,
+	FixedRateOfFungible<GenericNeerPerSecond, ToTreasury>,
 	FixedRateOfFungible<NeerPerSecond, ToTreasury>,
+	FixedRateOfFungible<NeerX0PerSecond, ToTreasury>,
+	FixedRateOfFungible<NeerX1PerSecond, ToTreasury>,
+	FixedRateOfFungible<NeerX2PerSecond, ToTreasury>,
 	FixedRateOfFungible<BitPerSecond, ToTreasury>,
 	FixedRateOfFungible<KarPerSecond, ToTreasury>,
 	FixedRateOfFungible<KUsdPerSecond, ToTreasury>,
@@ -990,14 +1015,7 @@ impl Convert<MultiAsset, Option<FungibleTokenId>> for FungibleTokenIdConvert {
 	}
 }
 
-pub type Barrier = (
-	TakeWeightCredit,
-	AllowTopLevelPaidExecutionFrom<Everything>,
-	// Expected responses are OK.
-	AllowKnownQueryResponses<PolkadotXcm>,
-	// Subscriptions for version tracking are OK.
-	AllowSubscriptionsFrom<Everything>,
-);
+pub type Barrier = (TakeWeightCredit, AllowTopLevelPaidExecutionFrom<Everything>);
 
 pub struct XcmConfig;
 
@@ -1178,7 +1196,7 @@ impl EnsureOrigin<Origin> for EnsureRootOrMetaverseTreasury {
 
 	#[cfg(feature = "runtime-benchmarks")]
 	fn successful_origin() -> Origin {
-		Origin::from(RawOrigin::Signed(Default::default()))
+		Origin::from(RawOrigin::Root)
 	}
 }
 
@@ -1314,6 +1332,8 @@ parameter_types! {
 	pub const MinBlocksPerLandIssuanceRound: u32 = 20;
 	pub const MinimumStake: Balance = 100 * DOLLARS;
 	pub const RewardPaymentDelay: u32 = 2;
+	pub const DefaultMaxBound: (i32,i32) = (-1000,1000);
+	pub const NetworkFee: Balance = 1 * DOLLARS; // Network fee
 }
 
 impl estate::Config for Runtime {
@@ -1329,6 +1349,8 @@ impl estate::Config for Runtime {
 	type MinimumStake = MinimumStake;
 	type RewardPaymentDelay = RewardPaymentDelay;
 	type NFTTokenizationSource = Nft;
+	type DefaultMaxBound = DefaultMaxBound;
+	type NetworkFee = NetworkFee;
 }
 
 parameter_types! {
@@ -1336,8 +1358,10 @@ parameter_types! {
 	pub const ContinuumSessionDuration: BlockNumber = 100; // Default 43200 Blocks
 	pub const SpotAuctionChillingDuration: BlockNumber = 100; // Default 43200 Blocks
 	pub const MinimumAuctionDuration: BlockNumber = 30; // Minimum duration is 300 blocks
-	pub const RoyaltyFee: u16 = 10; // Loyalty fee 0.1%
 	pub const MaxFinality: u32 = 100; // Maximum finalize auctions per block
+	pub const MaxBundleItem: u32 = 100; // Maximum number of item per bundle
+	pub const NetworkFeeReserve: Balance = 1; // Network fee reserved when item is listed for auction
+	pub const NetworkFeeCommission: Perbill = Perbill::from_percent(1); // Network fee collected after an auction is over
 }
 
 impl auction::Config for Runtime {
@@ -1350,9 +1374,11 @@ impl auction::Config for Runtime {
 	type MetaverseInfoSource = Metaverse;
 	type MinimumAuctionDuration = MinimumAuctionDuration;
 	type EstateHandler = Estate;
-	type RoyaltyFee = RoyaltyFee;
 	type MaxFinality = MaxFinality;
+	type MaxBundleItem = MaxBundleItem;
 	type NFTHandler = Nft;
+	type NetworkFeeReserve = NetworkFeeReserve;
+	type NetworkFeeCommission = NetworkFeeCommission;
 }
 
 impl continuum::Config for Runtime {

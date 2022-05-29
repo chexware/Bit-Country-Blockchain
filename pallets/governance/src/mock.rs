@@ -6,7 +6,12 @@ use frame_support::traits::{EqualPrivilegeOnly, Nothing};
 use frame_support::{construct_runtime, ord_parameter_types, parameter_types};
 use frame_support::{pallet_prelude::Hooks, weights::Weight, PalletId};
 use frame_system::{EnsureRoot, EnsureSignedBy};
+use metaverse_primitive::{
+	Attributes, CollectionType, MetaverseInfo as MetaversePrimitiveInfo, MetaverseLandTrait, MetaverseMetadata,
+	MetaverseTrait, NFTTrait, NftClassData, NftMetadata, TokenType,
+};
 use orml_traits::parameter_type_with_key;
+use primitives::{Amount, ClassId, FungibleTokenId, GroupCollectionId, TokenId};
 use scale_info::TypeInfo;
 use sp_core::H256;
 use sp_runtime::{
@@ -15,12 +20,6 @@ use sp_runtime::{
 	Perbill,
 };
 use sp_std::collections::btree_map::BTreeMap;
-
-use metaverse_primitive::{
-	Attributes, CollectionType, MetaverseInfo as MetaversePrimitiveInfo, MetaverseLandTrait, MetaverseTrait, NFTTrait,
-	NftClassData, NftMetadata, TokenType,
-};
-use primitives::{Amount, ClassId, FungibleTokenId, GroupCollectionId, TokenId};
 
 use crate as governance;
 
@@ -71,6 +70,9 @@ pub const ASSET_ID_2: TokenId = 100;
 pub const ASSET_CLASS_ID: ClassId = 5;
 pub const ASSET_TOKEN_ID: TokenId = 6;
 pub const ASSET_COLLECTION_ID: GroupCollectionId = 7;
+
+pub const ALICE_METAVERSE_ID: MetaverseId = 1;
+pub const GENERAL_METAVERSE_FUND: AccountId = 102;
 
 impl frame_system::Config for Runtime {
 	type Origin = Origin;
@@ -134,6 +136,10 @@ impl pallet_scheduler::Config for Runtime {
 pub struct MetaverseInfo {}
 
 impl MetaverseTrait<AccountId> for MetaverseInfo {
+	fn create_metaverse(who: &AccountId, metadata: MetaverseMetadata) -> MetaverseId {
+		1u64
+	}
+
 	fn check_ownership(who: &AccountId, country_id: &CountryId) -> bool {
 		match *who {
 			ALICE => *country_id == ALICE_COUNTRY_ID,
@@ -154,12 +160,24 @@ impl MetaverseTrait<AccountId> for MetaverseInfo {
 		Ok(())
 	}
 
-	fn get_metaverse_land_class(metaverse_id: MetaverseId) -> ClassId {
-		15u32
+	fn get_metaverse_land_class(metaverse_id: MetaverseId) -> Result<ClassId, DispatchError> {
+		Ok(15u32)
 	}
 
-	fn get_metaverse_estate_class(metaverse_id: MetaverseId) -> ClassId {
-		16u32
+	fn get_metaverse_estate_class(metaverse_id: MetaverseId) -> Result<ClassId, DispatchError> {
+		Ok(16u32)
+	}
+
+	fn get_metaverse_marketplace_listing_fee(metaverse_id: MetaverseId) -> Result<Perbill, DispatchError> {
+		Ok(Perbill::from_percent(1u32))
+	}
+
+	fn get_metaverse_treasury(metaverse_id: MetaverseId) -> AccountId {
+		GENERAL_METAVERSE_FUND
+	}
+
+	fn get_network_treasury() -> AccountId {
+		GENERAL_METAVERSE_FUND
 	}
 }
 
@@ -219,14 +237,6 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 		Ok(false)
 	}
 
-	fn check_nft_ownership(who: &AccountId, nft: &(Self::ClassId, Self::TokenId)) -> Result<bool, DispatchError> {
-		let nft_value = *nft;
-		if *who == ALICE && nft_value.0 == ASSET_CLASS_ID && nft_value.1 == ASSET_TOKEN_ID {
-			return Ok(true);
-		}
-		Ok(false)
-	}
-
 	fn check_collection_and_class(
 		collection_id: GroupCollectionId,
 		class_id: Self::ClassId,
@@ -250,8 +260,16 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 		royalty_fee: Perbill,
 	) -> Result<ClassId, DispatchError> {
 		match *sender {
-			ALICE => Ok(1),
-			BOB => Ok(2),
+			ALICE => {
+				if collection_id == 0 {
+					Ok(0)
+				} else if collection_id == 1 {
+					Ok(1)
+				} else {
+					Ok(2)
+				}
+			}
+			BOB => Ok(3),
 			BENEFICIARY_ID => Ok(ASSET_CLASS_ID),
 			_ => Ok(100),
 		}
@@ -314,6 +332,14 @@ impl NFTTrait<AccountId, Balance> for MockNFTHandler {
 			royalty_fee: Perbill::from_percent(0u32),
 		};
 		Ok(new_data)
+	}
+
+	fn set_lock_collection(class_id: Self::ClassId, is_locked: bool) -> sp_runtime::DispatchResult {
+		todo!()
+	}
+
+	fn set_lock_nft(token_id: (Self::ClassId, Self::TokenId), is_locked: bool) -> sp_runtime::DispatchResult {
+		todo!()
 	}
 }
 
