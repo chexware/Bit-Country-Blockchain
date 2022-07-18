@@ -133,6 +133,10 @@ impl Estate<u128> for EstateHandler {
 		}
 	}
 
+	fn check_estate_ownership(owner: AccountId, estate_id: EstateId) -> Result<bool, DispatchError> {
+		Ok(false)
+	}
+
 	fn check_landunit(_metaverse_id: MetaverseId, coordinate: (i32, i32)) -> Result<bool, DispatchError> {
 		match coordinate {
 			LAND_UNIT_EXIST | LAND_UNIT_EXIST_1 => Ok(true),
@@ -208,8 +212,6 @@ impl orml_tokens::Config for Runtime {
 	type ExistentialDeposits = ExistentialDeposits;
 	type OnDust = orml_tokens::TransferDust<Runtime, TreasuryModuleAccount>;
 	type MaxLocks = ();
-	type ReserveIdentifier = [u8; 8];
-	type MaxReserves = ();
 	type DustRemovalWhitelist = Nothing;
 }
 
@@ -280,10 +282,6 @@ impl MetaverseTrait<AccountId> for MetaverseInfoSource {
 		}
 		return Ok(false);
 	}
-
-	fn check_if_metaverse_has_any_land(_metaverse_id: primitives::MetaverseId) -> Result<bool, DispatchError> {
-		Ok(true)
-	}
 }
 
 impl Config for Runtime {
@@ -316,6 +314,7 @@ impl currencies::Config for Runtime {
 	type MultiSocialCurrency = Tokens;
 	type NativeCurrency = AdaptedBasicCurrency;
 	type GetNativeCurrencyId = NativeCurrencyId;
+	type WeightInfo = ();
 }
 
 parameter_types! {

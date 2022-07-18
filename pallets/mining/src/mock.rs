@@ -110,8 +110,6 @@ impl orml_tokens::Config for Runtime {
 	type ExistentialDeposits = ExistentialDeposits;
 	type OnDust = orml_tokens::TransferDust<Runtime, TreasuryModuleAccount>;
 	type MaxLocks = ();
-	type ReserveIdentifier = [u8; 8];
-	type MaxReserves = ();
 	type DustRemovalWhitelist = Nothing;
 }
 
@@ -127,6 +125,7 @@ impl currencies::Config for Runtime {
 	type MultiSocialCurrency = Tokens;
 	type NativeCurrency = AdaptedBasicCurrency;
 	type GetNativeCurrencyId = GetNativeCurrencyId;
+	type WeightInfo = ();
 }
 
 parameter_types! {
@@ -158,6 +157,10 @@ impl Estate<u128> for EstateHandler {
 
 	fn check_estate(_estate_id: EstateId) -> Result<bool, DispatchError> {
 		Ok(true)
+	}
+
+	fn check_estate_ownership(owner: AccountId, estate_id: EstateId) -> Result<bool, DispatchError> {
+		Ok(false)
 	}
 
 	fn check_landunit(_metaverse_id: primitives::MetaverseId, coordinate: (i32, i32)) -> Result<bool, DispatchError> {

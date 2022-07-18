@@ -110,8 +110,6 @@ pub type UndeployedLandBlockId = u128;
 pub type RoundIndex = u32;
 /// Domain Id
 pub type DomainId = u32;
-/// Element Id
-pub type ElementId = u32;
 /// Mining Power Amount
 pub type PowerAmount = u64;
 /// Nonce
@@ -136,8 +134,6 @@ pub enum ItemId<Balance> {
 	Spot(MapSpotId, MetaverseId),
 	Metaverse(MetaverseId),
 	Block(u64),
-	Estate(EstateId),
-	LandUnit((i32, i32), MetaverseId),
 	Bundle(Vec<(ClassId, TokenId, Balance)>),
 	UndeployedLandBlock(UndeployedLandBlockId),
 }

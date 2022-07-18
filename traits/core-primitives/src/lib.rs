@@ -186,8 +186,6 @@ pub trait MetaverseTrait<AccountId> {
 	fn get_network_treasury() -> AccountId;
 	/// Check if nft is estate or land belongs to metaverse
 	fn check_if_metaverse_estate(metaverse_id: MetaverseId, class_id: &ClassId) -> Result<bool, DispatchError>;
-	/// Check if metaverse has any estate or land
-	fn check_if_metaverse_has_any_land(metaverse_id: MetaverseId) -> Result<bool, DispatchError>;
 }
 
 pub trait MetaverseLandTrait<AccountId> {
@@ -275,10 +273,6 @@ pub trait NFTTrait<AccountId, Balance> {
 	fn set_lock_collection(class_id: Self::ClassId, is_locked: bool) -> DispatchResult;
 	/// Set lock nft
 	fn set_lock_nft(token_id: (Self::ClassId, Self::TokenId), is_locked: bool) -> DispatchResult;
-	/// Get nft class detail
-	fn get_nft_class_detail(class_id: Self::ClassId) -> Result<NftClassData<Balance>, DispatchError>;
-	/// Get class total issuance
-	fn get_total_issuance(class_id: Self::ClassId) -> Result<Self::TokenId, DispatchError>;
 }
 
 pub trait RoundTrait<BlockNumber> {
