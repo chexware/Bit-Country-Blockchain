@@ -25,7 +25,7 @@ pallet-aura = { workspace = true }
 pallet-balances = { workspace = true }
 frame-support = { workspace = true }
 pallet-grandpa = { workspace = true }
-pallet-randomness-collective-flip = { workspace = true }
+#pallet-randomness-collective-flip = { workspace = true }
 pallet-sudo = { workspace = true }
 pallet-collective = { workspace = true }
 pallet-vesting = { workspace = true }
@@ -131,7 +131,7 @@ std = [
     "pallet-balances/std",
     "pallet-collective/std",
     "pallet-grandpa/std",
-    "pallet-randomness-collective-flip/std",
+    #"pallet-randomness-collective-flip/std",
     "pallet-sudo/std",
     "pallet-session/std",
     "pallet-timestamp/std",
