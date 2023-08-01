@@ -85,7 +85,7 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		/// The currency type
-		type Currency: LockableCurrency<Self::AccountId, Moment = Self::BlockNumber>
+		type Currency: LockableCurrency<Self::AccountId, Moment = BlockNumberFor<Self>>
 			+ ReservableCurrency<Self::AccountId>;
 
 		/// Multi-fungible token currency
@@ -114,11 +114,11 @@ pub mod pallet {
 
 		/// The minimum amount of blocks during which campaign rewards can be claimed.
 		#[pallet::constant]
-		type MinimumCampaignDuration: Get<Self::BlockNumber>;
+		type MinimumCampaignDuration: Get<BlockNumberFor<Self>>;
 
 		/// The minimum amount of blocks during which campaign rewards can be claimed.
 		#[pallet::constant]
-		type MinimumCampaignCoolingOffPeriod: Get<Self::BlockNumber>;
+		type MinimumCampaignCoolingOffPeriod: Get<BlockNumberFor<Self>>;
 
 		/// The maximum amount of leaf nodes that could be passed when claiming reward
 		#[pallet::constant]

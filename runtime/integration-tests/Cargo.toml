@@ -50,7 +50,7 @@ orml-xcm = { git = "https://github.com/bit-country/open-runtime-module-library",
 orml-xcm-support = { git = "https://github.com/bit-country/open-runtime-module-library", branch = "v-1.0.0", default-features = false }
 
 # Misc
-xcm-emulator = { git = "https://github.com/shaunxw/xcm-simulator", rev = "754f3b90ecc65af735a6c9a2e1792c5253926ff6" }
+xcm-emulator = { git = "https://github.com/chexware/xcm-simulator", branch = "polkadot-v1.0.0" }
 
 # Local
 metaverse-runtime = { path = "../metaverse", optional = true }

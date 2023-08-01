@@ -17,7 +17,7 @@
 
 #![cfg(test)]
 
-use frame_support::pallet_prelude::{GenesisBuild, Hooks};
+use frame_support::pallet_prelude::Hooks;
 use frame_support::{construct_runtime, ord_parameter_types, parameter_types, PalletId};
 use frame_system::EnsureSignedBy;
 use sp_core::H256;
@@ -65,13 +65,13 @@ ord_parameter_types! {
 impl frame_system::Config for Runtime {
 	type RuntimeOrigin = RuntimeOrigin;
 	type Index = u64;
+	type Header = Header;
 	type BlockNumber = BlockNumber;
 	type RuntimeCall = RuntimeCall;
 	type Hash = H256;
 	type Hashing = ::sp_runtime::traits::BlakeTwo256;
 	type AccountId = AccountId;
 	type Lookup = IdentityLookup<Self::AccountId>;
-	type Header = Header;
 	type RuntimeEvent = RuntimeEvent;
 	type BlockHashCount = BlockHashCount;
 	type BlockWeights = ();

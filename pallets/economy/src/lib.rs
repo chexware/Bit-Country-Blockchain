@@ -78,7 +78,7 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		/// The currency type
-		type Currency: LockableCurrency<Self::AccountId, Moment = Self::BlockNumber>
+		type Currency: LockableCurrency<Self::AccountId, Moment = BlockNumberFor<Self>>
 			+ ReservableCurrency<Self::AccountId>;
 
 		/// Multi-fungible token currency
@@ -92,7 +92,7 @@ pub mod pallet {
 		type NFTHandler: NFTTrait<Self::AccountId, BalanceOf<Self>, ClassId = ClassId, TokenId = TokenId>;
 
 		/// Round handler
-		type RoundHandler: RoundTrait<Self::BlockNumber>;
+		type RoundHandler: RoundTrait<BlockNumberFor<Self>>;
 
 		/// Estate handler
 		type EstateHandler: Estate<Self::AccountId>;

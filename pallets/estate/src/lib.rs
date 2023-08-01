@@ -61,8 +61,7 @@ pub mod weights;
 #[frame_support::pallet]
 pub mod pallet {
 	use frame_support::traits::{Currency, Imbalance, ReservableCurrency};
-	use frame_system::Config;
-use sp_runtime::traits::{CheckedAdd, CheckedSub, Zero};
+	use sp_runtime::traits::{CheckedAdd, CheckedSub, Zero};
 
 	use primitives::estate::EstateInfo;
 	use primitives::staking::{Bond, RoundInfo, StakeSnapshot};
@@ -247,9 +246,9 @@ use sp_runtime::traits::{CheckedAdd, CheckedSub, Zero};
 	#[pallet::genesis_config]
 	#[derive(frame_support::DefaultNoBound)]
 	pub struct GenesisConfig<T: Config> {
-		#[serde(skip)]
-		pub phantom: PhantomData<T>,
 		pub minting_rate_config: MintingRateInfo,
+		#[serde(skip)]
+		pub _marker: PhantomData<T>,
 	}
 
 	#[pallet::genesis_build]
