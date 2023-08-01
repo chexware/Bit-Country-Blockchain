@@ -100,7 +100,7 @@ pub mod pallet {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		/// The currency type
-		type Currency: LockableCurrency<Self::AccountId, Moment = Self::BlockNumber>
+		type Currency: LockableCurrency<Self::AccountId, Moment = BlockNumberFor<Self>>
 			+ ReservableCurrency<Self::AccountId>;
 		/// The multicurrencies type
 		type MultiCurrency: MultiCurrencyExtended<
@@ -161,7 +161,7 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn staking_round)]
 	/// Tracks current staking round index and next round scheduled transition.
-	pub type Round<T: Config> = StorageValue<_, RoundInfo<T::BlockNumber>, ValueQuery>;
+	pub type Round<T: Config> = StorageValue<_, RoundInfo<BlockNumberFor<T>>, ValueQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn get_registered_metaverse)]
@@ -444,7 +444,7 @@ pub mod pallet {
 	}
 
 	#[pallet::hooks]
-	impl<T: Config> Hooks<T::BlockNumber> for Pallet<T> {}
+	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
 }
 
 impl<T: Config> Pallet<T> {
@@ -604,7 +604,7 @@ impl<T: Config> Pallet<T> {
 			Some(v2)
 		});
 		log::info!("{} metaverses upgraded:", upgraded_metaverse_items);
-		Weight::from_ref_time(0)
+		Weight::from_parts(0, 0)
 	}
 
 	/// Internal update of metaverse info to v3
@@ -634,7 +634,7 @@ impl<T: Config> Pallet<T> {
 		});
 		log::info!("{} metaverses in total:", total_metaverse_items);
 		log::info!("{} metaverses upgraded:", upgraded_metaverse_items);
-		Weight::from_ref_time(0)
+		Weight::from_parts(0, 0)
 	}
 }
 

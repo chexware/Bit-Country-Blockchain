@@ -784,7 +784,7 @@ pub mod pallet {
 	}
 
 	#[pallet::hooks]
-	impl<T: Config> Hooks<T::BlockNumber> for Pallet<T> {}
+	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
 }
 
 impl<T: Config> Pallet<T> {
@@ -829,7 +829,7 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	fn get_target_execution_order(power_amount: PowerAmount) -> Result<T::BlockNumber, DispatchError> {
+	fn get_target_execution_order(power_amount: PowerAmount) -> Result<BlockNumberFor<T>, DispatchError> {
 		let current_block_number = <frame_system::Pallet<T>>::current_block_number();
 		let target_block = if power_amount <= T::PowerAmountPerBlock::get() {
 			let target_b = current_block_number
@@ -842,7 +842,7 @@ impl<T: Config> Pallet<T> {
 				.ok_or(ArithmeticError::Overflow)?;
 
 			let target_b = current_block_number
-				.checked_add(&TryInto::<T::BlockNumber>::try_into(block_required).unwrap_or_default())
+				.checked_add(&TryInto::<BlockNumberFor<T>>::try_into(block_required).unwrap_or_default())
 				.ok_or(ArithmeticError::Overflow)?;
 			target_b
 		};
@@ -850,7 +850,7 @@ impl<T: Config> Pallet<T> {
 		Ok(target_block)
 	}
 
-	fn check_target_execution(target: T::BlockNumber) -> bool {
+	fn check_target_execution(target: BlockNumberFor<T>) -> bool {
 		let current_block_number = <frame_system::Pallet<T>>::current_block_number();
 
 		current_block_number >= target
