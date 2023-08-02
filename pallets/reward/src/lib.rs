@@ -1149,7 +1149,7 @@ pub mod pallet {
 		/// Hook that is called every time the runtime is upgraded.
 		fn on_runtime_upgrade() -> Weight {
 			Self::upgrade_campaign_info_v3();
-			Weight::from_ref_time(0)
+			Weight::from_parts(0, 0)
 		}
 	}
 }
@@ -1338,7 +1338,7 @@ impl<T: Config> Pallet<T> {
 				},
 			);
 			log::info!("{} campaigns upgraded:", upgraded_campaign_items);
-			Weight::from_ref_time(0)
+			Weight::from_parts(0, 0)
 		}
 	*/
 
@@ -1370,6 +1370,6 @@ impl<T: Config> Pallet<T> {
 			},
 		);
 		log::info!("{} campaigns upgraded:", upgraded_campaign_items);
-		Weight::from_ref_time(0)
+		Weight::from_parts(0, 0)
 	}
 }

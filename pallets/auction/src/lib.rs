@@ -806,7 +806,7 @@ pub mod pallet {
 
 		fn on_runtime_upgrade() -> Weight {
 			Self::upgrade_auction_item_data_v3();
-			Weight::from_ref_time(0u64)
+			Weight::from_parts(0u64, 0u64)
 		}
 	}
 
@@ -1892,7 +1892,7 @@ pub mod pallet {
 			);
 
 			log::info!("{} auction items upgraded:", num_auction_items);
-			Weight::from_ref_time(0)
+			Weight::from_parts(0u64, 0u64)
 		}
 
 		// Runtime upgrade V1 - may required for production release
@@ -1933,7 +1933,7 @@ pub mod pallet {
 		//			);
 		//
 		//			log::info!("Asset Item in Auction upgraded: {}", num_auction_item);
-		//			Weight::from_ref_time(0)
+		//			Weight::from_parts(0u64, 0u64)
 		//		}
 
 		pub fn swap_new_bid(
