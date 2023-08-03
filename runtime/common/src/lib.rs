@@ -61,7 +61,7 @@ pub struct FixedRateOfAsset<FixedRate: Get<u128>, R: TakeRevenue, M: BuyWeightRa
 impl<FixedRate: Get<u128>, R: TakeRevenue, M: BuyWeightRate> WeightTrader for FixedRateOfAsset<FixedRate, R, M> {
 	fn new() -> Self {
 		Self {
-			weight: Weight::from_ref_time(0),
+			weight: Weight::from_parts(0, Default::default()),
 			amount: 0,
 			ratio: Default::default(),
 			multi_location: None,
