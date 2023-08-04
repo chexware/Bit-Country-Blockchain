@@ -24,7 +24,6 @@
 use crate as asset_manager;
 use frame_support::{
 	assert_ok, construct_runtime, ord_parameter_types,
-	pallet_prelude::GenesisBuild,
 	parameter_types,
 	traits::{ConstU128, ConstU32, ConstU64, Everything},
 };
@@ -41,14 +40,13 @@ ord_parameter_types! {
 impl frame_system::Config for Runtime {
 	type BaseCallFilter = Everything;
 	type RuntimeOrigin = RuntimeOrigin;
-	type Index = u64;
-	type BlockNumber = u64;
+	type Block = Block;
+	type Nonce = u64;
 	type RuntimeCall = RuntimeCall;
 	type Hash = sp_runtime::testing::H256;
 	type Hashing = sp_runtime::traits::BlakeTwo256;
 	type AccountId = AccountId;
 	type Lookup = sp_runtime::traits::IdentityLookup<Self::AccountId>;
-	type Header = sp_runtime::testing::Header;
 	type RuntimeEvent = RuntimeEvent;
 	type BlockHashCount = ConstU64<250>;
 	type BlockWeights = ();
@@ -75,6 +73,10 @@ impl pallet_balances::Config for Runtime {
 	type MaxReserves = ConstU32<50>;
 	type ReserveIdentifier = ();
 	type WeightInfo = ();
+	type RuntimeHoldReason = ();
+	type MaxFreezes = ();
+	type MaxHolds = ();
+	type FreezeIdentifier = ();
 }
 
 impl pallet_timestamp::Config for Runtime {
