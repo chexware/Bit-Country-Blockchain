@@ -8,8 +8,8 @@ working_dir="$(pwd)"
 
 provider=native
 zombienet_version=v1.3.91
-pdot_branch=release-polkadot-v1.1.0
-asset_hub_branch=release-polkadot-v1.1.0
+pdot_branch=release-polkadot-v1.6.0
+asset_hub_branch=release-polkadot-v1.6.0
 polkadot_tmp_dir=/tmp/polkadot
 asset_hub_tmp_dir=/tmp/asset_hub
 
