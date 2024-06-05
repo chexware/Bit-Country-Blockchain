@@ -93,7 +93,7 @@ run-chopsticks-pioneer:
 
 .PHONY: run-chopsticks-pioneer-xcm
 run-chopsticks-pioneer-xcm:
-	npx @acala-network/chopsticks xcm -r kusama -p statemine -p scripts/chopsticks/chopsticks_pioneer.yml
+	npx @acala-network/chopsticks xcm -r scripts/chopsticks/chopsticks_paseo.yml -p scripts/chopsticks/chopsticks_asset_hub.yml  -p scripts/chopsticks/chopsticks_pioneer.yml
 
 .PHONY: get-default-substrate-address
 get-default-substrate-address:

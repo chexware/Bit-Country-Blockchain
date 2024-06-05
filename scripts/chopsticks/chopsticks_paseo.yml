@@ -1,0 +1,6 @@
+endpoint: wss://rpc.dotters.network/paseo/wss
+port: 8000
+mock-signature-host: true
+block: ${env.PASEO_BLOCK_NUMBER}
+db: ./scripts/chopsticks/db/db_paseo.sqlite
+import-storage: ./scripts/chopsticks/storage_paseo.yml

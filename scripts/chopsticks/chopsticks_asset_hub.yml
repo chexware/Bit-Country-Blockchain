@@ -1,0 +1,6 @@
+endpoint: wss://asset-hub-paseo-rpc.dwellir.com/wss
+port: 8001
+mock-signature-host: true
+block: ${env.ASSET_HUB_PASEO_BLOCK_NUMBER}
+db: ./scripts/chopsticks/db/db_paseo.sqlite
+import-storage: ./scripts/chopsticks/storage_asset_hub.yml
